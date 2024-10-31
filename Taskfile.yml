@@ -1,0 +1,39 @@
+version: '3'
+
+vars:
+  STREAMLIT_PORT: 8501
+  GRADIO_PORT: 8502
+
+tasks:
+  install:
+    desc: Install project dependencies
+    cmds:
+      - poetry install
+
+  streamlit:app:
+    desc: Run Streamlit application
+    cmds:
+      - poetry run streamlit run privacy_policy_summarizer/streamlit_app.py --server.port={{.STREAMLIT_PORT}}
+    deps:
+      - task: install
+
+  gradio:app:
+    desc: Run Gradio application
+    cmds:
+      - poetry run python privacy_policy_summarizer/gradio_app.py
+    deps:
+      - task: install
+
+  format:
+    desc: Format code using black and isort
+    cmds:
+      - poetry run black .
+      - poetry run isort .
+
+  run:
+    desc: Run all applications
+    cmds:
+      - task streamlit:app
+      - task gradio:app
+    deps:
+      - task: format
